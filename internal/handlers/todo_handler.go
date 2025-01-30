@@ -1,23 +1,31 @@
 package handlers
 
 import (
-	"go-todo/internal/database"
 	"go-todo/internal/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-func CreateTodoHandler(c *gin.Context) {
+type Handler struct {
+	DB *gorm.DB
+}
+
+func RegisterRoutes(router *gin.Engine, db * gorm.DB){
+	h := &Handler{DB: db}
+	router.POST("/todos", h.CreateTodoHandler)
+}
+
+func (h *Handler) CreateTodoHandler(c *gin.Context) {
 	var todo models.Todo
 	if err := c.ShouldBindJSON(&todo); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	result := database.DB.Create(&todo)
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+	if err := h.DB.Create(&todo).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

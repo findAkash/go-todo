@@ -9,10 +9,9 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
-var DB *gorm.DB
 
 
-func Connect(){
+func Connect()(*gorm.DB, error){
 	dbUser := os.Getenv("DB_USER")
 	dbPassword :=os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
@@ -20,21 +19,17 @@ func Connect(){
 	dbPort := os.Getenv("DB_PORT")
 
 	// construct the data scource name
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb&paseTime=True&loc=Local",
-dbUser,dbPassword,dbName,dbHost,dbPort)
-
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+dbUser,dbPassword,dbHost,dbPort,dbName)
+fmt.Println(dsn)
 var err error
-DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 	Logger: logger.Default.LogMode(logger.Silent),
 })
 
 if err != nil {
 	log.Fatalf("Failed to connect to database: %v", err)
 }
-}
+return db, nil
 
-// Optionally, auto-migrate your models
-    // err = DB.AutoMigrate(&models.Todo{})
-    // if err != nil {
-    //     log.Fatalf("Failed to auto-migrate models: %v", err)
-    // }
+}
