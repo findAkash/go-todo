@@ -2,8 +2,8 @@ package main
 
 import (
 	"go-todo/internal/database"
-	"go-todo/internal/handlers"
 	"go-todo/internal/models"
+	"go-todo/internal/routes"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -32,7 +32,7 @@ func main() {
 	router := gin.Default()
 
 	// setup routes
-	handlers.RegisterRoutes(router, db)
+	routes.RegisterRoutes(router, db)
 
 	//Start the server on port 8080
 	if err := router.Run(":8080"); err != nil {

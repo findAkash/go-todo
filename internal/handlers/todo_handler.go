@@ -8,12 +8,13 @@ import (
 	"gorm.io/gorm"
 )
 
+// Dependency Injection using a struct
 type Handler struct {
 	DB *gorm.DB
 }
 
 func RegisterRoutes(router *gin.Engine, db * gorm.DB){
-	h := &Handler{DB: db}
+	h := &Handler{DB: db} // Inject database
 	router.POST("/todos", h.CreateTodoHandler)
 }
 
@@ -30,4 +31,13 @@ func (h *Handler) CreateTodoHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, todo)
+}
+
+func (h *Handler) ListToDo(c *gin.Context) {
+	var todos []models.Todo
+	if err := h.DB.Find(&todos).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"errror": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, todos)
 }
